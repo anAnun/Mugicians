@@ -1,32 +1,254 @@
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+body {
+  background-image: url("./images/background.jpg");
+  background-color: #cccccc;
+  height: 100vh;
+  background-position: center center;
+}
+
+input {
+  width: 70vw;
+  margin-bottom: 3em;
+  margin-left: 2em;
+  border-radius: 8px;
+}
+
+.App-header {
+  background-color: rgba(158, 36, 36, 0.219);
+  height: 80px;
+  padding: 20px;
+  color: white;
+  width: 100vw;
+  position:static;
+  margin-bottom: 20px;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
+.App-title {
+  font-size: 1.5em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.area {
+  width: 70vw;
+  margin-bottom: 3em;
+  margin-left: 2em;
+  border-radius: 8px;
+  height: 200px;
+}
+
+.bg {
+  background-color: black
+}
+
+.body {
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+.button {
+  padding: 3em;
+}
+
+.confirm {
+  width: 80px;
+  height: 40px;
+  background-color: rgb(114, 31, 31);
+  font-weight: bolder;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.container {
+  display: grid;
+  width: 300px;
+  height: auto;
+  grid-template-columns: 300px;
+  grid-template-rows: 50px  500px;
+  grid-gap: 1rem;
+  grid-template-areas:
+      
+      "content-title-1 content-1"
+      "content-title-2 content-2 content-2";
+}
+
+.content-1 {
+  grid-area: content-1;
+}
+
+.content-2 {
+  grid-area: content-2;
+}
+
+.content-title-1 {
+  grid-area: content-title-1;
+}
+
+.content-title-2 {
+  grid-area: content-title-2;
+}
+
+.create {
+  background-color: rgb(65, 143, 104);
+  border-radius: 10px;
   color: white;
+  font-weight: bolder;
+  width: 100px;
+  height: 50px;
+  font-size: 19px;
 }
 
-.App-link {
-  color: #61dafb;
+.delete {
+  background-color: rgb(255, 0, 0);
+  color: white;
+  border-radius: 7px;
+  margin: 10px;
+  font-weight: bolder;
+  width: 100px;
+  height: 50px;
+  font-size: 19px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+.desc-del {
+  background-color: rgb(255, 0, 0);
+  border-radius: 7px;
+  color: white;
+  width: 60px;
+}
+
+.desc-up {
+  background-color: rgb(219, 233, 226);
+  border-radius: 7px;
+  width: 60px;
+}
+
+.dim {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index:100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit {
+  background-color: rgb(65, 143, 139);
+  color: white;
+  border-radius: 7px;
+  margin: 10px;
+  font-weight: bolder;
+  width: 100px;
+  height: 50px;
+  font-size: 19px;
+}
+
+.error {
+  -webkit-box-shadow: 0px 0px 6px 3px rgba(252,0,0,0.78); 
+  box-shadow: 0px 0px 6px 3px rgb(252, 0, 0) !important;
+}
+
+.grid-files {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  padding: 8px;
+}
+
+@media (max-width: 600px) {
+  .grid-files {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
   }
 }
+
+.grid-buttons {
+  display: grid;
+  height: 21px;
+  grid-template-rows: 30px .2fr;
+}
+
+.input {
+  margin: 20px;
+  height: 80px;
+}
+
+.nav {
+  width: 100px;
+  height: 50px;
+  font-weight: bolder;
+  background-color: rgb(32, 33, 122);
+  color: white;
+  border-radius: 14px;
+}
+
+.piano {
+  background-image: url("./images/header.jpg");
+  opacity: 0.7;
+}
+
+.songButton {
+  color: white;
+  border-radius: 12px;
+  font-style: arial;
+  height: 45px;
+  background-color: rgba(209, 167, 29, 0.37);
+  font-weight: bolder;
+  font-size: 20px;
+  
+}
+
+.song-description {
+  width: 100%;
+  height: 58px;
+  margin-left: 5px;
+  border-radius: 11px;
+}
+
+.test {
+  border: solid;
+  border-color: rgba(15, 14, 92, 0.603);
+  border-radius: 27px;
+  height: 95px;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  max-width: 100%;
+  text-align: center;
+  background-size: 200px 200px;
+  background:radial-gradient(circle, rgb(44, 16, 21), rgb(14, 1, 1), #0a253f);
+}
+
+.text {
+  color: white;
+  font-weight: bolder;
+}
+
+.textError {
+  font-weight: bolder;
+  color: rgb(255, 0, 0);
+  font-size: 15px;
+}
+
+.text-grey {
+  color: rgb(195, 191, 191);
+  font-weight: bold;
+}
+
+.upload-button {
+  background-color: rgb(65, 143, 139);
+  margin-bottom: 25px;
+  width: 315px;
+}
+
