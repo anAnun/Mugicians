@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import { viewAll_get } from "./server";
 import { withRouter } from "react-router-dom";
 
 class ViewAll extends React.Component {
@@ -18,7 +18,8 @@ class ViewAll extends React.Component {
   };
 
   componentDidMount() {
-    axios.get("api/songs").then(
+    const myPromise = viewAll_get();
+    myPromise.then(
       resp => {
         for (let i = 0; i < resp.data.length; i++) {
           resp.data.sort(

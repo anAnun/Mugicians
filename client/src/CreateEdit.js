@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
+import { songs_post } from "./server";
 
 class CreateEdit extends React.Component {
   state = {
@@ -152,7 +153,7 @@ class CreateEdit extends React.Component {
   };
 
   create = () => {
-    const myPromise = axios.post("api/songs", {
+    const myPromise = songs_post({
       SongName: this.state.songName,
       Lyrics: this.state.lyrics
     });
