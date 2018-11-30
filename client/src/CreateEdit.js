@@ -1,7 +1,16 @@
 import React from "react";
-import axios from "axios";
 import { Redirect } from "react-router-dom";
-import { songs_post } from "./server";
+import {
+  songs_post,
+  song_get,
+  delete_song,
+  upload_file,
+  file_get,
+  delete_file,
+  delete_file_drive,
+  song_update,
+  description_update
+} from "./server";
 
 class CreateEdit extends React.Component {
   state = {
@@ -25,21 +34,17 @@ class CreateEdit extends React.Component {
       console.log(selectorFiles);
       var bodyFormData = new FormData();
       bodyFormData.append("audio", selectorFiles[0]);
-      const myPromise = axios.post(
-        "api/songfile/" + this.props.match.params.id,
-        bodyFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
+      const myPromise = upload_file(this.props.match.params.id, bodyFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
         }
-      );
+      });
       myPromise.then(this.componentDidMount);
     }
   };
 
   populateForm = () => {
-    const myPromise = axios.get("api/songs/" + this.props.match.params.id);
+    const myPromise = song_get(this.props.match.params.id);
     myPromise.then(e => {
       this.setState({
         id: e.data.id,
@@ -47,9 +52,7 @@ class CreateEdit extends React.Component {
         lyrics: e.data.lyrics
       });
     });
-    const myPromise2 = axios.get(
-      "api/song/" + this.props.match.params.id + "/files"
-    );
+    const myPromise2 = file_get(this.props.match.params.id);
     myPromise2.then(s => {
       this.setState(
         {
@@ -64,13 +67,10 @@ class CreateEdit extends React.Component {
     this.setState({ confirm2: true });
   };
   deleteDescription = fileString => {
-    const myPromise = axios.delete(
-      "api/songfile/" + this.state.toBeDeletedFile,
-      {
-        Id: this.state.toBeDeletedFile
-      }
-    );
-    axios.delete("api/songfile/drive/" + fileString, {
+    const myPromise = delete_file(this.state.toBeDeletedFile, {
+      Id: this.state.toBeDeletedFile
+    });
+    delete_file_drive(fileString, {
       fileString: fileString
     });
     myPromise.then(() =>
@@ -161,7 +161,7 @@ class CreateEdit extends React.Component {
   };
 
   update = () => {
-    const myPromise = axios.put("api/song/" + this.props.match.params.id, {
+    const myPromise = song_update(this.props.match.params.id, {
       Id: this.props.match.params.id,
       SongName: this.state.songName,
       Lyrics: this.state.lyrics
@@ -171,7 +171,7 @@ class CreateEdit extends React.Component {
 
   updateDescription = (song, id, description, audioFile) => {
     console.log("song", song, "id", id);
-    const myPromise = axios.put("api/songfile/" + id, {
+    description_update(id, {
       Id: id,
       Description: description,
       AudioFile: audioFile,
@@ -186,7 +186,7 @@ class CreateEdit extends React.Component {
   };
 
   deleteCall = () => {
-    const myPromise = axios.delete("api/song/" + this.props.match.params.id, {
+    const myPromise = delete_song(this.props.match.params.id, {
       Id: this.props.match.params.id
     });
     myPromise.then(() => {
