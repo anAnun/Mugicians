@@ -3,6 +3,7 @@ import "./App.css";
 import { Route, withRouter } from "react-router-dom";
 import ViewAll from "./ViewAll";
 import CreateEdit from "./CreateEdit";
+import Login from "./Login";
 
 class App extends Component {
   state = {
@@ -34,9 +35,10 @@ class App extends Component {
               New Song
             </button>
           </div>
-        </div>
-        <Route exact path="/home" component={ViewAll} />
+        </div>{" "}
         <Route exact path="/create" component={CreateEdit} />
+        <Route exact path="/home" component={ViewAll} />
+        <Route exact path="/login" component={Login} />
         <Route exact path="/:id(\d+)" component={CreateEdit} />
       </React.Fragment>
     );
