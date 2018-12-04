@@ -1,4 +1,4 @@
-using Organizer.Services;
+using Organizer.Interfaces;
 using System;
 
 using Unity;
