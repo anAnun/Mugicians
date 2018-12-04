@@ -12,5 +12,6 @@ namespace Organizer.Models
         public string UserName { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
+        public int? UserTypeId { get; set; }
     }
 }
