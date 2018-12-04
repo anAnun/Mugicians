@@ -12,7 +12,7 @@ using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
 
-namespace Organizer.Services
+namespace Organizer.Interfaces
 {
     public class OrganizerService : IOrganizerService
     {
