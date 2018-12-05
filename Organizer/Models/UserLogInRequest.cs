@@ -17,5 +17,7 @@ namespace Organizer.Models
         [Required]
         [MaxLength(254)]
         public string Email { get; set; }
+        [Required]
+        public bool RememberMe { get; set; }
     }
 }
