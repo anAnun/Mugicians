@@ -23,6 +23,13 @@ namespace Organizer.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, results);
         }
 
+        //[Route("api/users/{id:int}"), HttpGet()]
+        //public HttpResponseMessage GetById(int Id)
+        //{
+        //    var result = usersService.GetById(Id);
+        //    return Request.CreateResponse(HttpStatusCode.OK, result);
+        //}
+
         [Route("api/users"), HttpPost, AllowAnonymous]
         public HttpResponseMessage Create(UserCreateRequest model)
         {
