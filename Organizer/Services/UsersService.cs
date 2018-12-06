@@ -190,7 +190,27 @@ namespace Organizer.Services
             return result;
         }
 
-        
+        public UserWithRole GetCurrentUser(int id)
+        {
+            UserWithRole result = new UserWithRole();
+            dataProvider.ExecuteCmd(
+                "Users_GetCurrentUser",
+                inputParamMapper: parameters =>
+                {
+                    parameters.AddWithValue("@Id", id);
+                },
+                singleRecordMapper: (reader, resultsSetNumber) =>
+                {
+                    result.Id = (int)reader["Id"];
+                    result.UserName = (string)reader["UserName"];
+                    result.Email = (string)reader["Email"];
+                    result.UserTypeId = reader.GetSafeInt32Nullable("UserTypeId");
+                    result.Role = reader.GetSafeInt32Nullable("Role");
+                    result.DateCreated = (DateTime)reader["DateCreated"];
+                    result.DateModified = (DateTime)reader["DateModified"];
+                });
+            return result;
+        }
 
         //public UserWithRole GetCurrentUser(int id)
         //{

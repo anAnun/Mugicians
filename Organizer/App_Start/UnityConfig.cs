@@ -46,6 +46,7 @@ namespace Organizer
 
             container.RegisterType<IOrganizerService, OrganizerService>();
         }
+
     }
 }
 

@@ -13,7 +13,7 @@ namespace Organizer.Models
             get; set;
         }
 
-        public string UserName
+        public string Name
         {
             get; set;
         }
