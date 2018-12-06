@@ -16,5 +16,6 @@ namespace Organizer.Interfaces
         void Delete(int id);
         User GetById(int id);
         void LogOut();
+        UserWithRole GetCurrentUser(int id);
     }
 }

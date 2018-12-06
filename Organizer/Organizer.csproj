@@ -106,7 +106,6 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\UnityWebApiActivator.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\GetCurrentUserController.cs" />
     <Compile Include="Controllers\OrganizerController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
@@ -115,6 +114,7 @@
     <Compile Include="Interfaces\IAuthenticationService.cs" />
     <Compile Include="Interfaces\IDataProvider.cs" />
     <Compile Include="Interfaces\IDataReaderExt.cs" />
+    <Compile Include="Interfaces\IIdentityExtensions.cs" />
     <Compile Include="Interfaces\IUserAuthData.cs" />
     <Compile Include="Interfaces\IUsersService.cs" />
     <Compile Include="Models\BaseResponse.cs" />

@@ -8,8 +8,6 @@ namespace Organizer.Interfaces
         List<OrganizerModel> GetAll();
         int Create(OrganizerCreateModel model);
         OrganizerModel GetById(int Id);
-        UserWithRole GetCurrentUser(int id);
-
         void Update(OrganizerUpdateModel model);
         void Delete(int Id);
         int CreateAudioFile(int songId, string fileName);
