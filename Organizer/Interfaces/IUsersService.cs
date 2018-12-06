@@ -15,7 +15,6 @@ namespace Organizer.Interfaces
         void Update(UserUpdateRequest model);
         void Delete(int id);
         User GetById(int id);
-        string GetProfileById(int id, int viewersUserId);
         void LogOut();
     }
 }

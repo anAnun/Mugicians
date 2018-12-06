@@ -9,5 +9,6 @@ namespace Organizer.Interfaces
     public interface IUserAuthData
     {
         int Id { get; }
+        IEnumerable<string>Roles { get; set; }
     }
 }
