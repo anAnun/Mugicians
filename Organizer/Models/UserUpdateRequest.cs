@@ -11,11 +11,14 @@ namespace Organizer.Models
         [Required]
         public int? Id { get; set; }
         [MaxLength(50)]
-        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        [MaxLength(50)]
+        public string LastName { get; set; }
         [MaxLength(254)]
         public string Email { get; set; }
-        [MaxLength(50)]
-        public string Password { get; set; }
-        public int UserTypeId { get; set; }
+        public int? UserTypeId { get; set; }
+        [MaxLength(250)]
+        public string AvatarUrl { get; set; }
+        public bool? SubscribeToNewsletter { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using Organizer.Interfaces;
+using Organizer.Services;
 using System;
 
 using Unity;
@@ -45,6 +46,7 @@ namespace Organizer
             // container.RegisterType<IProductRepository, ProductRepository>();
 
             container.RegisterType<IOrganizerService, OrganizerService>();
+            container.RegisterType<IUsersService, UsersService>();
         }
 
     }

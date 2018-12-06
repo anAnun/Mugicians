@@ -199,7 +199,6 @@ C:\Users\allan\organizerfinal\Organizer\bin\Newtonsoft.Json.xml
 C:\Users\allan\organizerfinal\Organizer\bin\System.Net.Http.Formatting.xml
 C:\Users\allan\organizerfinal\Organizer\bin\System.Web.Http.xml
 C:\Users\allan\organizerfinal\Organizer\bin\System.Web.Http.WebHost.xml
-C:\Users\allan\organizerfinal\Organizer\obj\Debug\Organizer.csprojAssemblyReference.cache
 C:\Users\allan\organizerfinal\Organizer\obj\Debug\Organizer.csproj.CoreCompileInputs.cache
 C:\Users\allan\organizerfinal\Organizer\obj\Debug\Organizer.csproj.CopyComplete
 C:\Users\allan\organizerfinal\Organizer\obj\Debug\Organizer.dll
@@ -215,3 +214,16 @@ C:\Users\allan\organizerfinal\Organizer\bin\roslyn\System.Threading.Tasks.Extens
 C:\Users\allan\organizerfinal\Organizer\bin\BCrypt.Net-Next.dll
 C:\Users\allan\organizerfinal\Organizer\bin\BCrypt.Net-Next.xml
 C:\Users\allan\organizerfinal\Organizer\bin\Newtonsoft.Json.pdb
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Owin.dll
+C:\Users\allan\organizerfinal\Organizer\bin\Owin.dll
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Owin.xml
+C:\Users\allan\organizerfinal\Organizer\obj\Debug\Organizer.csprojAssemblyReference.cache
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.ServiceLocation.dll
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.Unity.Configuration.dll
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.Unity.dll
+C:\Users\allan\organizerfinal\Organizer\bin\UnityRegistrationValidator.dll
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.ServiceLocation.pdb
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.ServiceLocation.xml
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.Unity.xml
+C:\Users\allan\organizerfinal\Organizer\bin\Microsoft.Practices.Unity.Configuration.xml
+C:\Users\allan\organizerfinal\Organizer\bin\UnityRegistrationValidator.pdb

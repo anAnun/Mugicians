@@ -1,10 +1,14 @@
-﻿using Organizer.Interfaces;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Organizer.Interfaces;
 using Organizer.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.ApplicationServices;
@@ -22,13 +26,12 @@ namespace Organizer.Services
             authenticationService = authService;
             this.dataProvider = dataProvider;
         }
-
-
-
         public bool LogIn(UserLogInRequest model)
         {
-            int Id = 0;
+            int userId = 0;
             string passwordHash = null;
+            bool rememberMe = model.RememberMe;
+
             dataProvider.ExecuteCmd(
                 "Users_GetPasswordFromEmail",
                 inputParamMapper: parameters =>
@@ -37,50 +40,23 @@ namespace Organizer.Services
                 },
                 singleRecordMapper: (reader, resultsSetNumber) =>
                 {
-                    Id = (int)reader["Id"];
-                    passwordHash = (string)reader["password"];
+                    userId = (int)reader["Id"];
+                    passwordHash = (string)reader["Password"];
                 });
+
             bool isSuccessful = BCrypt.Net.BCrypt.Verify(model.Password, passwordHash);
             if (isSuccessful)
             {
-                FormsAuthentication.SetAuthCookie(Convert.ToString(Id), true);
+                UserAuthData userAuthData = new UserAuthData();
+                userAuthData.Id = userId;
+                authenticationService.LogIn(userAuthData, rememberMe);
             }
             return isSuccessful;
         }
         public void LogOut()
         {
-            FormsAuthentication.SignOut();
+            authenticationService.LogOut();
         }
-
-        public UserWithRole GetCurrentUser(string id)
-        {
-            var convertStr = Convert.ToInt32(id);
-            UserWithRole result = new UserWithRole();
-            dataProvider.ExecuteCmd(
-                "Users_GetCurrentUser",
-                inputParamMapper: parameters =>
-                {
-                    parameters.AddWithValue("@Id", convertStr);
-                },
-                singleRecordMapper: (reader, resultSetNumber) =>
-                {
-                    result.Id = (int)reader["Id"];
-                    result.UserName = (string)reader["UserName"];
-                    result.Email = (string)reader["Email"];
-                    result.UserTypeId = (int)reader["UserTypeId"];
-                });
-            return result;
-        }
-
-
-
-
-
-
-        //public void LogOut()
-        //{
-        //    authenticationService.LogOut();
-        //}
         public List<User> GetAll()
         {
             List<User> results = new List<User>();
@@ -91,16 +67,17 @@ namespace Organizer.Services
                 {
                     User user = new User();
                     user.Id = (int)reader["Id"];
-                    user.UserName = (string)reader["UserName"];
+                    user.FirstName = (string)reader["FirstName"];
+                    user.LastName = (string)reader["LastName"];
                     user.Email = (string)reader["Email"];
                     user.UserTypeId = (int)reader["UserTypeId"];
+                    user.AvatarUrl = reader.GetSafeString("AvatarUrl");
                     user.DateCreated = (DateTime)reader["DateCreated"];
                     user.DateModified = (DateTime)reader["DateModified"];
                     results.Add(user);
                 });
             return results;
         }
-
         public int Create(UserCreateRequest model)
         {
             int userId = 0;
@@ -112,10 +89,12 @@ namespace Organizer.Services
                     "Users_Create",
                     inputParamMapper: (parameters) =>
                     {
-                        parameters.AddWithValue("@UserName", model.UserName);
+                        parameters.AddWithValue("@FirstName", model.FirstName);
+                        parameters.AddWithValue("@LastName", model.LastName);
                         parameters.AddWithValue("@Email", model.Email);
                         parameters.AddWithValue("@UserTypeId", model.UserTypeId);
                         parameters.AddWithValue("@Password", passwordHash);
+                        parameters.AddWithValue("@SubscribeToNewsletter", model.SubscribeToNewsletter);
                         parameters.Add("@Id", SqlDbType.Int).Direction = ParameterDirection.Output;
                     },
                     returnParameters: (parameters) =>
@@ -134,7 +113,6 @@ namespace Organizer.Services
 
             return userId;
         }
-        
         public void Update(UserUpdateRequest model)
         {
             dataProvider.ExecuteNonQuery(
@@ -142,23 +120,25 @@ namespace Organizer.Services
                 inputParamMapper: (parameters) =>
                 {
                     parameters.AddWithValue("@Id", model.Id);
-                    parameters.AddWithValue("@UserName", model.UserName);
+                    parameters.AddWithValue("@FirstName", model.FirstName);
+                    parameters.AddWithValue("@LastName", model.LastName);
+                    parameters.AddWithValue("@AvatarUrl", model.AvatarUrl ?? (object)DBNull.Value);
                     parameters.AddWithValue("@Email", model.Email);
                     parameters.AddWithValue("@UserTypeId", model.UserTypeId);
                 },
                 returnParameters: null);
         }
-        //public void UpdateUserTypeId(UserTypeUpdateRequest model)
-        //{
-        //    dataProvider.ExecuteNonQuery(
-        //        "Users_GoogleUserTypeIdUpdate",
-        //        inputParamMapper: (parameters) =>
-        //        {
-        //            parameters.AddWithValue("@Id", model.Id);
-        //            parameters.AddWithValue("@UserTypeId", model.UserTypeId);
-        //        },
-        //        returnParameters: null);
-        //}
+        public void UpdateUserTypeId(UserTypeUpdateRequest model)
+        {
+            dataProvider.ExecuteNonQuery(
+                "Users_GoogleUserTypeIdUpdate",
+                inputParamMapper: (parameters) =>
+                {
+                    parameters.AddWithValue("@Id", model.Id);
+                    parameters.AddWithValue("@UserTypeId", model.UserTypeId);
+                },
+                returnParameters: null);
+        }
         public void Delete(int id)
         {
             dataProvider.ExecuteNonQuery(
@@ -181,15 +161,16 @@ namespace Organizer.Services
                 singleRecordMapper: (reader, resultsSetNumber) =>
                 {
                     result.Id = (int)reader["Id"];
-                    result.UserName = (string)reader["UserName"];
+                    result.FirstName = (string)reader["FirstName"];
+                    result.LastName = (string)reader["LastName"];
                     result.Email = (string)reader["Email"];
                     result.UserTypeId = reader.GetSafeInt32Nullable("UserTypeId");
+                    result.AvatarUrl = reader["AvatarUrl"] as string ?? default(string);
                     result.DateCreated = (DateTime)reader["DateCreated"];
                     result.DateModified = (DateTime)reader["DateModified"];
                 });
             return result;
         }
-
         public UserWithRole GetCurrentUser(int id)
         {
             UserWithRole result = new UserWithRole();
@@ -202,158 +183,136 @@ namespace Organizer.Services
                 singleRecordMapper: (reader, resultsSetNumber) =>
                 {
                     result.Id = (int)reader["Id"];
-                    result.UserName = (string)reader["UserName"];
+                    result.FirstName = (string)reader["FirstName"];
+                    result.LastName = (string)reader["LastName"];
                     result.Email = (string)reader["Email"];
                     result.UserTypeId = reader.GetSafeInt32Nullable("UserTypeId");
+                    result.UserTypeName = (string)reader["UserTypeName"];
                     result.Role = reader.GetSafeInt32Nullable("Role");
+                    result.AvatarUrl = reader["AvatarUrl"] as string ?? default(string);
                     result.DateCreated = (DateTime)reader["DateCreated"];
                     result.DateModified = (DateTime)reader["DateModified"];
+                    result.DisplayName = reader.GetSafeString("DisplayName");
                 });
             return result;
         }
 
-        //public UserWithRole GetCurrentUser(int id)
-        //{
-        //    UserWithRole result = new UserWithRole();
-        //    dataProvider.ExecuteCmd(
-        //        "Users_GetCurrentUser",
-        //        inputParamMapper: parameters =>
-        //        {
-        //            parameters.AddWithValue("@Id", id);
-        //        },
-        //        singleRecordMapper: (reader, resultsSetNumber) =>
-        //        {
-        //            result.Id = (int)reader["Id"];
-        //            result.FirstName = (string)reader["FirstName"];
-        //            result.LastName = (string)reader["LastName"];
-        //            result.Email = (string)reader["Email"];
-        //            result.UserTypeId = reader.GetSafeInt32Nullable("UserTypeId");
-        //            result.UserTypeName = (string)reader["UserTypeName"];
-        //            result.Role = reader.GetSafeInt32Nullable("Role");
-        //            result.AvatarUrl = reader["AvatarUrl"] as string ?? default(string);
-        //            result.DateCreated = (DateTime)reader["DateCreated"];
-        //            result.DateModified = (DateTime)reader["DateModified"];
-        //            result.DisplayName = reader.GetSafeString("DisplayName");
-        //        });
-        //    return result;
-        //}
+        public string GetProfileById(int id, int viewersUserId)
+        {
+            var jsonResult = new StringBuilder();
+            dataProvider.ExecuteCmd(
+                "UserProfile_GetById",
+                inputParamMapper: parameters =>
+                {
+                    parameters.AddWithValue("@Id", id);
+                    parameters.AddWithValue("@ViewersUserId", viewersUserId);
+                },
+                singleRecordMapper: (reader, resultSetId) =>
+                {
+                    jsonResult.Append(reader.GetString(0));
+                });
+            return jsonResult.ToString();
+        }
+        public void UpdateProfile(UserProfileUpdateRequest model)
+        {
+            var json = JsonConvert.SerializeObject(model);
+            dataProvider.ExecuteNonQuery(
+                "UserProfile_Update",
+                inputParamMapper: (parameters) =>
+                {
+                    parameters.AddWithValue("@Data", json);
+                },
+                returnParameters: null);
+        }
 
-        //public string GetProfileById(int id, int viewersUserId)
-        //{
-        //    var jsonResult = new StringBuilder();
-        //    dataProvider.ExecuteCmd(
-        //        "UserProfile_GetById",
-        //        inputParamMapper: parameters =>
-        //        {
-        //            parameters.AddWithValue("@Id", id);
-        //            parameters.AddWithValue("@ViewersUserId", viewersUserId);
-        //        },
-        //        singleRecordMapper: (reader, resultSetId) =>
-        //        {
-        //            jsonResult.Append(reader.GetString(0));
-        //        });
-        //    return jsonResult.ToString();
-        //}
-        //public void UpdateProfile(UserProfileUpdateRequest model)
-        //{
-        //    var json = JsonConvert.SerializeObject(model);
-        //    dataProvider.ExecuteNonQuery(
-        //        "UserProfile_Update",
-        //        inputParamMapper: (parameters) =>
-        //        {
-        //            parameters.AddWithValue("@Data", json);
-        //        },
-        //        returnParameters: null);
-        //}
+        public bool GoogleLogin(GoogleLogInRequest model)
+        {
+            bool userAuthenticated = false;
+            int userId = 0;
 
-        //public bool GoogleLogin(GoogleLogInRequest model)
-        //{
-        //    bool userAuthenticated = false;
-        //    int userId = 0;
+            //TODO: Update with RecruitHub Client Id
+            string googleClientId = "58772775873-oma31jtiqhph7os62h7i9a37makcilfr.apps.googleusercontent.com";
+            string gapiRespObject;
+            string gapiAuthUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=";
+            HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(gapiAuthUrl + model.GoogleToken);
+            webReq.Method = "GET";
+            HttpWebResponse webResp = (HttpWebResponse)webReq.GetResponse();
+            using (Stream stream = webResp.GetResponseStream())
+            {
+                StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+                gapiRespObject = reader.ReadToEnd();
+            }
 
-        //    //TODO: Update with RecruitHub Client Id
-        //    string googleClientId = "58772775873-oma31jtiqhph7os62h7i9a37makcilfr.apps.googleusercontent.com";
-        //    string gapiRespObject;
-        //    string gapiAuthUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=";
-        //    HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(gapiAuthUrl + model.GoogleToken);
-        //    webReq.Method = "GET";
-        //    HttpWebResponse webResp = (HttpWebResponse)webReq.GetResponse();
-        //    using (Stream stream = webResp.GetResponseStream())
-        //    {
-        //        StreamReader reader = new StreamReader(stream, System.Text.Encoding.UTF8);
-        //        gapiRespObject = reader.ReadToEnd();
-        //    }
+            var gapiRespString = (JObject)JsonConvert.DeserializeObject(gapiRespObject);
+            string authEmail = gapiRespString["email"].Value<string>();
+            string authAud = gapiRespString["aud"].Value<string>();
+            string authFirstName = gapiRespString["given_name"].Value<string>();
+            string authLastName = gapiRespString["family_name"].Value<string>();
+            string authPassword = gapiRespString["sub"].Value<string>();
 
-        //    var gapiRespString = (JObject)JsonConvert.DeserializeObject(gapiRespObject);
-        //    string authEmail = gapiRespString["email"].Value<string>();
-        //    string authAud = gapiRespString["aud"].Value<string>();
-        //    string authFirstName = gapiRespString["given_name"].Value<string>();
-        //    string authLastName = gapiRespString["family_name"].Value<string>();
-        //    string authPassword = gapiRespString["sub"].Value<string>();
+            if (authAud == googleClientId)
+            {
+                userAuthenticated = true;
 
-        //    if (authAud == googleClientId)
-        //    {
-        //        userAuthenticated = true;
+                dataProvider.ExecuteCmd(
+                "Users_GoogleLogin",
+                inputParamMapper: (parameters) =>
+                {
+                    parameters.AddWithValue("@Email", authEmail);
+                    parameters.AddWithValue("@FirstName", authFirstName);
+                    parameters.AddWithValue("@LastName", authLastName);
+                    parameters.AddWithValue("@UserTypeId", (object)DBNull.Value);
+                    parameters.AddWithValue("@Password", authPassword);
+                },
+                singleRecordMapper: (reader, resultsSetNumber) =>
+                {
+                    userId = (int)reader["Id"];
+                });
 
-        //        dataProvider.ExecuteCmd(
-        //        "Users_GoogleLogin",
-        //        inputParamMapper: (parameters) =>
-        //        {
-        //            parameters.AddWithValue("@Email", authEmail);
-        //            parameters.AddWithValue("@FirstName", authFirstName);
-        //            parameters.AddWithValue("@LastName", authLastName);
-        //            parameters.AddWithValue("@UserTypeId", (object)DBNull.Value);
-        //            parameters.AddWithValue("@Password", authPassword);
-        //        },
-        //        singleRecordMapper: (reader, resultsSetNumber) =>
-        //        {
-        //            userId = (int)reader["Id"];
-        //        });
+                UserAuthData userAuthData = new UserAuthData()
+                {
+                    Id = userId
+                };
+                authenticationService.LogIn(userAuthData, true);
+            }
+            return userAuthenticated;
+        }
 
-        //        UserAuthData userAuthData = new UserAuthData()
-        //        {
-        //            Id = userId
-        //        };
-        //        authenticationService.LogIn(userAuthData, true);
-        //    }
-        //    return userAuthenticated;
-        //}
+        public Dictionary<int, UserAvatarResponse> GetUserAvatarsByIds(int[] ids)
+        {
+            Dictionary<int, UserAvatarResponse> result = new Dictionary<int, UserAvatarResponse>();
 
-        //public Dictionary<int, UserAvatarResponse> GetUserAvatarsByIds(int[] ids)
-        //{
-        //    Dictionary<int, UserAvatarResponse> result = new Dictionary<int, UserAvatarResponse>();
+            dataProvider.ExecuteCmd(
+                "UserAvatar_GetByIds",
+                inputParamMapper: p =>
+                {
+                    p.AddWithValue("@Ids", JsonConvert.SerializeObject(ids));
+                },
+                singleRecordMapper: (reader, resultSetIndex) =>
+                {
+                    UserAvatarResponse avatar = new UserAvatarResponse();
+                    avatar.Id = (int)reader["Id"];
+                    avatar.AvatarUrl = reader["AvatarUrl"] as string ?? default(string);
+                    avatar.UserTypeId = (int)reader["UserTypeId"];
+                    avatar.FullName = (string)reader["FullName"];
+                    result.Add(avatar.Id, avatar);
+                });
 
-        //    dataProvider.ExecuteCmd(
-        //        "UserAvatar_GetByIds",
-        //        inputParamMapper: p =>
-        //        {
-        //            p.AddWithValue("@Ids", JsonConvert.SerializeObject(ids));
-        //        },
-        //        singleRecordMapper: (reader, resultSetIndex) =>
-        //        {
-        //            UserAvatarResponse avatar = new UserAvatarResponse();
-        //            avatar.Id = (int)reader["Id"];
-        //            avatar.AvatarUrl = reader["AvatarUrl"] as string ?? default(string);
-        //            avatar.UserTypeId = (int)reader["UserTypeId"];
-        //            avatar.FullName = (string)reader["FullName"];
-        //            result.Add(avatar.Id, avatar);
-        //        });
+            return result;
+        }
 
-        //    return result;
-        //}
-
-        //public void UpdateAvatarUrl(int id, UsersUpdateAvatarUrlRequest url)
-        //{
-        //    dataProvider.ExecuteNonQuery(
-        //        "Users_UpdateAvatarUrl",
-        //         inputParamMapper: parameters =>
-        //         {
-        //             parameters.AddWithValue("@Id", id);
-        //             parameters.AddWithValue("@Url", url.Url);
-        //         },
-        //         returnParameters: null
-        //         );
-        //}
+        public void UpdateAvatarUrl(int id, UsersUpdateAvatarUrlRequest url)
+        {
+            dataProvider.ExecuteNonQuery(
+                "Users_UpdateAvatarUrl",
+                 inputParamMapper: parameters =>
+                 {
+                     parameters.AddWithValue("@Id", id);
+                     parameters.AddWithValue("@Url", url.Url);
+                 },
+                 returnParameters: null
+                 );
+        }
 
         public bool UpdatePassword(UserPasswordUpdateRequest model)
         {
@@ -364,7 +323,7 @@ namespace Organizer.Services
                 "Users_GetPasswordHash",
                 inputParamMapper: parameters =>
                 {
-                    parameters.AddWithValue("@Id", model.Id);
+                    parameters.AddWithValue("@UserId", model.UserId);
                 },
                 singleRecordMapper: (reader, resultsSetNumber) =>
                 {
@@ -380,7 +339,7 @@ namespace Organizer.Services
                     "Users_PasswordUpdate",
                     inputParamMapper: parameters =>
                     {
-                        parameters.AddWithValue("@Id", model.Id);
+                        parameters.AddWithValue("@UserId", model.UserId);
                         parameters.AddWithValue("@NewPassword", newPasswordHash);
                     },
                     returnParameters: null);
@@ -397,13 +356,13 @@ namespace Organizer.Services
                 "Users_PasswordUpdate",
                 inputParamMapper: parameters =>
                 {
-                    parameters.AddWithValue("@Id", model.Id);
+                    parameters.AddWithValue("@UserId", model.UserId);
                     parameters.AddWithValue("@NewPassword", newPasswordHash);
                 },
                 returnParameters: null);
         }
 
-        public bool PasswordNullCheck(int Id)
+        public bool PasswordNullCheck(int userId)
         {
             bool passwordIsNull = false;
             string password = "";
@@ -412,7 +371,7 @@ namespace Organizer.Services
                 "Users_GetPasswordHash",
                 inputParamMapper: parameters =>
                 {
-                    parameters.AddWithValue("@Id", Id);
+                    parameters.AddWithValue("@UserId", userId);
                 },
                 singleRecordMapper: (reader, resultsSetNumber) =>
                 {
@@ -426,16 +385,16 @@ namespace Organizer.Services
             return passwordIsNull;
         }
 
-        //public void UpdateBasicInfo(UserUpdateBasicInfoRequest model)
-        //{
-        //    dataProvider.ExecuteNonQuery(
-        //        "Users_UpdateBasicInfo",
-        //        inputParamMapper: param =>
-        //        {
-        //            param.AddWithValue("@Id", model.Id);
-        //            param.AddWithValue("@DisplayName", model.DisplayName);
-        //            param.AddWithValue("@AvatarUrl", model.AvatarUrl);
-        //        });
-        //}
+        public void UpdateBasicInfo(UserUpdateBasicInfoRequest model)
+        {
+            dataProvider.ExecuteNonQuery(
+                "Users_UpdateBasicInfo",
+                inputParamMapper: param =>
+                {
+                    param.AddWithValue("@Id", model.Id);
+                    param.AddWithValue("@DisplayName", model.DisplayName);
+                    param.AddWithValue("@AvatarUrl", model.AvatarUrl);
+                });
+        }
     }
 }
