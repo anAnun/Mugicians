@@ -6,16 +6,13 @@ using System.Web;
 
 namespace Organizer.Models
 {
-    public class UserUpdateRequest
+    public class UserPasswordUpdateRequest
     {
-        [Required]
         public int? Id { get; set; }
-        [MaxLength(50)]
-        public string UserName { get; set; }
-        [MaxLength(254)]
-        public string Email { get; set; }
-        [MaxLength(50)]
+        [Required]
         public string Password { get; set; }
-        public int UserTypeId { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string NewPassword { get; set; }
     }
 }
