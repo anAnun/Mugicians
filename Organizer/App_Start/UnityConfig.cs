@@ -1,8 +1,15 @@
+using Microsoft.Practices.Unity;
+using Organizer.Data;
 using Organizer.Interfaces;
 using Organizer.Services;
 using System;
-
+using System.Configuration;
+using System.Web.Http;
+using System.Web.Mvc;
 using Unity;
+using Unity.AspNet.WebApi;
+using Unity.Injection;
+using Unity.Lifetime;
 
 namespace Organizer
 {
@@ -44,9 +51,16 @@ namespace Organizer
 
             // TODO: Register your type's mappings here.
             // container.RegisterType<IProductRepository, ProductRepository>();
+            container.RegisterType<IDataProvider, SqlDataProvider>(
+            new InjectionConstructor(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString));
 
             container.RegisterType<IOrganizerService, OrganizerService>();
-            container.RegisterType<IUsersService, UsersService>();
+            container.RegisterType<IUsersService, UsersService>(new ContainerControlledLifetimeManager());
+
+            GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
+
+            DependencyResolver.SetResolver(new Unity.Mvc5.UnityDependencyResolver(container));
+
         }
 
     }
