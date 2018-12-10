@@ -207,11 +207,10 @@ input {
   background-color: rgba(209, 167, 29, 0.37);
   font-weight: bolder;
   font-size: 20px;
-  
 }
 
 .song-description {
-  width: 100%;
+  width: 100px;
   height: 58px;
   margin-left: 5px;
   border-radius: 11px;
