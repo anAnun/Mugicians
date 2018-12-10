@@ -56,7 +56,7 @@ namespace Organizer
 
             container.RegisterType<IOrganizerService, OrganizerService>();
             container.RegisterType<IUsersService, UsersService>(new ContainerControlledLifetimeManager());
-
+            container.RegisterType<IAuthenticationService, OwinAuthenticationService>();
             GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
 
             DependencyResolver.SetResolver(new Unity.Mvc5.UnityDependencyResolver(container));
